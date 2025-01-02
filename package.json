@@ -1,0 +1,23 @@
+{
+  "name": "lit-wordle",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@carbon/styles": "^1.71.0",
+    "@carbon/web-components": "^2.19.0",
+    "@lit-labs/signals": "^0.1.1",
+    "lit": "^3.2.1",
+    "sass": "^1.83.0",
+    "word-exists": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5"
+  }
+}
