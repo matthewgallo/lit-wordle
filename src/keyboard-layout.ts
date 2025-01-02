@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js'
 import { SignalWatcher } from '@lit-labs/signals';
-import { gameState } from './signal-count';
+import { gameState } from './game-board';
 
 const checkIsCorrect = (l: string, guessedLetters: string[][], gameWord: string) => {
   let isCorrect = false;

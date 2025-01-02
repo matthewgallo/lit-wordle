@@ -4,7 +4,7 @@ import { SignalWatcher } from '@lit-labs/signals';
 import '@carbon/web-components/es/components/icon-button/index.js';
 import '@carbon/web-components/es/components/modal/index.js';
 import '@carbon/web-components/es/components/button/index.js';
-import { gameState } from './signal-count';
+import { gameState } from './game-board';
 import { classMap } from 'lit/directives/class-map.js';
 
 @customElement('score-card')

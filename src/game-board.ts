@@ -43,8 +43,8 @@ const isAlphabetic = (key: string) => {
  * @slot - This element has a slot
  * @csspart button - The button
  */
-@customElement('signal-counter')
-export class MyElement extends SignalWatcher(LitElement) {
+@customElement('game-board')
+export class GameBoard extends SignalWatcher(LitElement) {
 
   connectedCallback() {
     super.connectedCallback()
@@ -75,7 +75,7 @@ export class MyElement extends SignalWatcher(LitElement) {
           notWord: gameState.get().value,
         });
         setTimeout(() => {
-          const rootElement = document.querySelector('signal-counter');
+          const rootElement = document.querySelector('game-board');
           if (rootElement?.shadowRoot) {
             const wrongWordRow = rootElement.shadowRoot.querySelector('.not-a-word');
             wrongWordRow?.classList.remove('not-a-word');
@@ -317,6 +317,6 @@ export class MyElement extends SignalWatcher(LitElement) {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'signal-counter': MyElement
+    'game-board': GameBoard
   }
 }
