@@ -3,7 +3,6 @@ import { customElement } from 'lit/decorators.js'
 import {SignalWatcher, signal} from '@lit-labs/signals';
 import wordExists from 'word-exists';
 import { classMap } from 'lit/directives/class-map.js';
-// const engWords = isWord('american-english');
 import './square';
 import './keyboard-layout';
 
@@ -16,7 +15,7 @@ const defaultGuesses = {
   5: [],
 } as Record<number, string[]>;
 
-// Could be global store
+// Global store
 export const gameState = signal({
   value: 0,
   guesses: defaultGuesses,
@@ -37,12 +36,6 @@ const isAlphabetic = (key: string) => {
   return /^[a-zA-Z]$/.test(key);
 }
 
-/**
- * An example element.
- *
- * @slot - This element has a slot
- * @csspart button - The button
- */
 @customElement('game-board')
 export class GameBoard extends SignalWatcher(LitElement) {
 
@@ -74,6 +67,8 @@ export class GameBoard extends SignalWatcher(LitElement) {
           ...gameState.get(),
           notWord: gameState.get().value,
         });
+        // Refactor later, just removes class after css animation
+        // Maybe use ontransitionend, rather than a setTimeout
         setTimeout(() => {
           const rootElement = document.querySelector('game-board');
           if (rootElement?.shadowRoot) {
@@ -88,6 +83,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
         return;
       }
 
+      // Player has won if guess equals the chosen game word
       if (prevCurrentGuess.join('') === gameWord) {
         gameState.set({
           ...gameState.get(),
@@ -105,7 +101,6 @@ export class GameBoard extends SignalWatcher(LitElement) {
       }
       if (guessNumber === 5) {
         // Game over, last guess
-        console.log('Game over');
         gameState.set({
           ...gameState.get(),
           gameOver: true,
@@ -136,6 +131,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
     });
   }
 
+  // Resets for new game
   _onNewGame (event: Event) {
     const newGameWord = words[Math.floor(Math.random() * words.length)];
     gameState.set({
@@ -154,7 +150,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
   render() {
     const data = Object.values(gameState.get().guesses)
     const gameWord = gameState.get().gameWord;
-    console.log(gameState.get());
+
     return html`
       <slot></slot>
       <h1 class='game-message-header'>
