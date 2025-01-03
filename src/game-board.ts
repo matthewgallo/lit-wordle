@@ -92,7 +92,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
     super.update(changes);
   }
 
-  _handleKeydown (event: KeyboardEvent) {
+  _handleKeydown(event: KeyboardEvent) {
     if (!gameState.get().gameWord.length) {
       return;
     }
@@ -146,10 +146,11 @@ export class GameBoard extends SignalWatcher(LitElement) {
             }
           ]
         });
+        return;
       }
       if (guessNumber === 5) {
         // Game over, last guess
-        gameState.set({
+        return gameState.set({
           ...gameState.get(),
           gameOver: true,
           gameWon: false,
@@ -162,7 +163,6 @@ export class GameBoard extends SignalWatcher(LitElement) {
             }
           ]
         });
-        return;
       }
       gameState.set({
         ...gameState.get(),
@@ -180,7 +180,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
   }
 
   // Resets for new game
-  _onNewGame (event: Event) {
+  _onNewGame(event: Event) {
     const newGameWord = words[Math.floor(Math.random() * words.length)];
     gameState.set({
       ...gameState.get(),
@@ -246,7 +246,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
     :host {
       max-width: 100%;
       margin: 0 auto;
-      padding: 2rem;
+      padding: 0.5rem;
       text-align: center;
       width: 100%;
       min-width: 320px;

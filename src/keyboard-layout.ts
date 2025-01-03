@@ -50,7 +50,7 @@ export class KeyboardLayout extends SignalWatcher(LitElement) {
       }
       .grid-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(32px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(24px, 1fr));
         justify-items: center;
         gap: 2px;
       }
