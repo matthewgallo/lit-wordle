@@ -206,13 +206,18 @@ export class GameBoard extends SignalWatcher(LitElement) {
           <span class='lose-message'>Better luck next time!</span>
           <span class='game-word'>${gameState.get().gameWord}</span>` : null}
       </h1>
-      <div class="card">
+      <div class="game-button-wrapper">
         <button @click=${(e: Event) => this._onNewGame(e)} part="button">
           ${!gameState.get().gameWord.length
               ? 'Start a new game'
               : gameState.get().gameOver ? 'Play again' : 'Restart'
           }
         </button>
+        <span class=${classMap({
+          'game-session-dot': true,
+          'game-in-session': !gameState.get().gameOver && gameState.get().gameWord.length,
+          'game-not-in-session': gameState.get().gameOver || !gameState.get().gameWord.length,
+          })}></span>
       </div>
       ${data.map((d, index) => {
         const blankSquareCount = 5 - (d.length ?? 0);
@@ -259,26 +264,11 @@ export class GameBoard extends SignalWatcher(LitElement) {
       filter: drop-shadow(0 0 2em #325cffaa);
     }
 
-    .card {
+    .game-button-wrapper {
       padding: 2em;
-    }
-
-    .read-the-docs {
-      color: #888;
-    }
-
-    ::slotted(h1) {
-      font-size: 3.2em;
-      line-height: 1.1;
-    }
-
-    a {
-      font-weight: 500;
-      color: #646cff;
-      text-decoration: inherit;
-    }
-    a:hover {
-      color: #535bf2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     button {
@@ -357,6 +347,51 @@ export class GameBoard extends SignalWatcher(LitElement) {
     }
     .game-message-header {
       margin: 0;
+    }
+    .game-session-dot {
+      display: block;
+      height: 0.5rem;
+      width: 0.5rem;
+      border-radius: 100%;
+      margin-left: 1rem;
+    }
+
+    .game-in-session {
+      animation: game-in-progress-pulse 1s alternate infinite;
+      background: rgba(255,255,255,0.7);
+      box-shadow: inset 0px 0px 10px 2px rgba(0,128,0,0.5),
+                      0px 0px 10px 2px rgba(0,128,0,0.3);
+    }
+    .game-not-in-session {
+      animation: pulse 1s alternate infinite;
+      background: rgba(255,255,255,0.7);
+      box-shadow: inset 0px 0px 10px 2px rgba(0,128,0,0.5),
+                      0px 0px 10px 2px rgba(0,128,0,0.3);
+    }
+
+    @keyframes pulse {
+      0% {
+        background: rgba(255,255,255,0.3);
+        box-shadow: inset 0px 0px 10px 2px rgba(255,0,0,0.5),
+                          0px 0px 5px 2px rgba(255,0,0,0.3);
+      }
+      100% {
+        background: rgba(255,255,255,1);
+        box-shadow: inset 0px 0px 10px 2px rgba(255,0,0,0.5),
+                          0px 0px 15px 2px rgba(255,0,0,1);
+      }
+    }
+    @keyframes game-in-progress-pulse {
+      0% {
+        background: rgba(255,255,255,0.3);
+        box-shadow: inset 0px 0px 10px 2px rgba(0,128,0,0.5),
+                          0px 0px 5px 2px rgba(0,128,0,0.3);
+      }
+      100% {
+        background: rgba(255,255,255,1);
+        box-shadow: inset 0px 0px 10px 2px rgba(0,128,0,0.5),
+                          0px 0px 15px 2px rgba(0,128,0,1);
+      }
     }
   `
 }

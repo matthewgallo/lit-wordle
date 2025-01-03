@@ -55,6 +55,7 @@ export class ScoreCard extends SignalWatcher(LitElement) {
         background-color: var(--cds-border-strong-01);
         margin-left: 0.5rem;
         padding: 0 0.5rem;
+        box-sizing: border-box;
       }
       .game-stats {
         display: flex;
@@ -74,6 +75,22 @@ export class ScoreCard extends SignalWatcher(LitElement) {
       }
     `
   ];
+
+  greatestConsecutive(array) {
+    let maxCount = 0;
+    let currentCount = 0;
+  
+    for (let i = 0; i < array.length; i++) {
+      if (array[i].won) {
+        currentCount++;
+        maxCount = Math.max(maxCount, currentCount);
+      } else {
+        currentCount = 0;
+      }
+    }
+  
+    return maxCount;
+  }
 
   render() {
     const scores = getLocalStorageItem();
@@ -121,7 +138,12 @@ export class ScoreCard extends SignalWatcher(LitElement) {
             <span class='stat-callout-number'>${checkWinStreak(reversedScores)}</span>
             <span>Current streak</span>
           </div>
+          <div class='stat'>
+            <span class='stat-callout-number'>${this.greatestConsecutive(scores)}</span>
+            <span>Max streak</span>
+          </div>
         </div>
+        <p>Guess distribution</p>
         <div class='score-bar-wrapper'>
           <span class='score-number'>1</span>
           <span
