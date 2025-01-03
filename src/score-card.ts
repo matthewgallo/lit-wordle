@@ -6,7 +6,7 @@ import { styleMap } from 'lit/directives/style-map.js';
 import '@carbon/web-components/es/components/icon-button/index.js';
 import '@carbon/web-components/es/components/modal/index.js';
 import '@carbon/web-components/es/components/button/index.js';
-import { getLocalStorageItem, LIT_WORDLE_SCORE, setLocalStorageItem } from './game-board';
+import { type gameScore, getLocalStorageItem, LIT_WORDLE_SCORE, setLocalStorageItem } from './game-board';
 
 @customElement('score-card')
 export class ScoreCard extends SignalWatcher(LitElement) {
@@ -76,7 +76,7 @@ export class ScoreCard extends SignalWatcher(LitElement) {
     `
   ];
 
-  greatestConsecutive(array) {
+  greatestConsecutive(array: gameScore[]) {
     let maxCount = 0;
     let currentCount = 0;
   
@@ -94,7 +94,7 @@ export class ScoreCard extends SignalWatcher(LitElement) {
 
   render() {
     const scores = getLocalStorageItem();
-    const checkWinStreak = (games) => {
+    const checkWinStreak = (games: gameScore[]) => {
       let streak = 0;
       let foundLoss = false;
       if (games) {
@@ -110,10 +110,8 @@ export class ScoreCard extends SignalWatcher(LitElement) {
     }
     const reversedScores = [...scores].reverse();
 
-    // @ts-expect-error revisit this
-    const results: Record<number, string[]> = scores.reduce((acc, o) => (acc[o.guessCount] = (acc[o.guessCount] || 0) + 1, acc), {});
-    // @ts-expect-error revisit this
-    const highestOccurrence = parseInt(Object.keys(results).reduce((a, b) => results[a] > results[b] ? a : b, 0));
+    const results: Record<number, number> = scores.reduce((acc: { [key: number]: number }, o: gameScore) => (acc[o.guessCount] = (acc[o.guessCount] || 0) + 1, acc), {});
+    const highestOccurrence = Object.keys(results).reduce((a, b) => results[a] > results[parseInt(b)] ? a : parseInt(b), 0);
 
     return html`
     <button class='score-card-button' @click=${() => this.scoreCardOpen = true}>
@@ -131,7 +129,7 @@ export class ScoreCard extends SignalWatcher(LitElement) {
             <span>Played</span>
           </div>
           <div class='stat'>
-            <span class='stat-callout-number'>${scores.length ? Math.round(scores.filter(s => s.won).length / scores.length * 100) : 0}</span>
+            <span class='stat-callout-number'>${scores.length ? Math.round(scores.filter((s: gameScore) => s.won).length / scores.length * 100) : 0}</span>
             <span>Win %</span>
           </div>
           <div class='stat'>
@@ -151,7 +149,7 @@ export class ScoreCard extends SignalWatcher(LitElement) {
             style=${styleMap({
               width: highestOccurrence === 1 ? '100%' : `${results[1] / results[highestOccurrence] * 100}%`
             })}
-          >${scores.length ? scores.filter(s => s.guessCount === 1).length : 0}</span>
+          >${scores.length ? scores.filter((s: gameScore) => s.guessCount === 1).length : 0}</span>
         </div>
         <div class='score-bar-wrapper'>
           <span class='score-number'>2</span>
@@ -160,7 +158,7 @@ export class ScoreCard extends SignalWatcher(LitElement) {
             style=${styleMap({
               width: highestOccurrence === 1 ? '100%' : `${results[2] / results[highestOccurrence] * 100}%`
             })}
-          >${scores.length ? scores.filter(s => s.guessCount === 2).length : 0}</span>
+          >${scores.length ? scores.filter((s: gameScore) => s.guessCount === 2).length : 0}</span>
         </div>
         <div class='score-bar-wrapper'>
           <span class='score-number'>3</span>
@@ -169,7 +167,7 @@ export class ScoreCard extends SignalWatcher(LitElement) {
             style=${styleMap({
               width: highestOccurrence === 1 ? '100%' : `${results[3] / results[highestOccurrence] * 100}%`
             })}
-          >${scores.length ? scores.filter(s => s.guessCount === 3).length : 0}</span>
+          >${scores.length ? scores.filter((s: gameScore) => s.guessCount === 3).length : 0}</span>
         </div>
         <div class='score-bar-wrapper'>
           <span class='score-number'>4</span>
@@ -178,7 +176,7 @@ export class ScoreCard extends SignalWatcher(LitElement) {
             style=${styleMap({
               width: highestOccurrence === 1 ? '100%' : `${results[4] / results[highestOccurrence] * 100}%`
             })}
-          >${scores.length ? scores.filter(s => s.guessCount === 4).length : 0}</span>
+          >${scores.length ? scores.filter((s: gameScore) => s.guessCount === 4).length : 0}</span>
         </div>
         <div class='score-bar-wrapper'>
           <span class='score-number'>5</span>
@@ -187,7 +185,7 @@ export class ScoreCard extends SignalWatcher(LitElement) {
             style=${styleMap({
               width: highestOccurrence === 1 ? '100%' : `${results[5] / results[highestOccurrence] * 100}%`
             })}
-          >${scores.length ? scores.filter(s => s.guessCount === 5).length : 0}</span>
+          >${scores.length ? scores.filter((s: gameScore) => s.guessCount === 5).length : 0}</span>
         </div>
         <div class='score-bar-wrapper'>
           <span class='score-number'>6</span>
@@ -196,7 +194,7 @@ export class ScoreCard extends SignalWatcher(LitElement) {
             style=${styleMap({
               width: highestOccurrence === 1 ? '100%' : `${results[6] / results[highestOccurrence] * 100}%`
             })}
-          >${scores.length ? scores.filter(s => s.guessCount === 6).length : 0}</span>
+          >${scores.length ? scores.filter((s: gameScore) => s.guessCount === 6).length : 0}</span>
         </div>
         <cds-button kind='ghost' @click=${() => setLocalStorageItem(LIT_WORDLE_SCORE, [])}>Reset scores</cds-button>
       </cds-modal-body>

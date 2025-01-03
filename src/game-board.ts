@@ -1,4 +1,4 @@
-import { LitElement, css, html } from 'lit'
+import { LitElement, PropertyValues, css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import {SignalWatcher, signal} from '@lit-labs/signals';
 import wordExists from 'word-exists';
@@ -8,7 +8,7 @@ import './keyboard-layout';
 
 export const LIT_WORDLE_SCORE = 'lit-wordle-score';
 
-export const setLocalStorageItem = (key = LIT_WORDLE_SCORE, value) => {
+export const setLocalStorageItem = (key = LIT_WORDLE_SCORE, value: gameScore[]) => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
@@ -33,7 +33,8 @@ const defaultGuesses = {
   5: [],
 } as Record<number, string[]>;
 
-type gameScore = {
+export type gameScore = {
+  [key: string]: boolean | number;
   won: boolean;
   timestamp: number;
   guessCount: number;
@@ -64,7 +65,7 @@ const compareScores = (
       gameScore.length === localStorageScore.length &&
       gameScore.every((score) =>
           localStorageScore.some((score2) =>
-              Object.keys(score).every((key) => score[key] === score2[key])
+              Object.keys(score).every((k: string) => (score as gameScore)[k] === (score2 as gameScore)[k])
           )
       )
   );
@@ -78,7 +79,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
     window.addEventListener('keydown', this._handleKeydown);
   }
 
-  update(changes) {
+  update(changes: PropertyValues<this>) {
     // If actual and local storage scores are different then we need to update them both
     if (!compareScores(gameState.get().scores, getLocalStorageItem())) {
       const currentLocalStorageScore = getLocalStorageItem();
@@ -358,15 +359,21 @@ export class GameBoard extends SignalWatcher(LitElement) {
 
     .game-in-session {
       animation: game-in-progress-pulse 1s alternate infinite;
+      @media (prefers-reduced-motion) {
+        animation: none;
+      }
       background: rgba(255,255,255,0.7);
       box-shadow: inset 0px 0px 10px 2px rgba(0,128,0,0.5),
                       0px 0px 10px 2px rgba(0,128,0,0.3);
     }
     .game-not-in-session {
       animation: pulse 1s alternate infinite;
+      @media (prefers-reduced-motion) {
+        animation: none;
+      }
       background: rgba(255,255,255,0.7);
-      box-shadow: inset 0px 0px 10px 2px rgba(0,128,0,0.5),
-                      0px 0px 10px 2px rgba(0,128,0,0.3);
+      box-shadow: inset 0px 0px 10px 2px rgba(255,0,0,0.5),
+                      0px 0px 10px 2px rgba(255,0,0,0.3);
     }
 
     @keyframes pulse {
