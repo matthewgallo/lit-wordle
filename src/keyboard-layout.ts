@@ -42,10 +42,27 @@ export class KeyboardLayout extends SignalWatcher(LitElement) {
         display: block;
         margin-top: 1.5rem;
       }
-      .flex {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      .grid {
+        display: grid;
+        grid-template-rows: 1fr 1fr 1fr;
+        max-width: 580px;
+        margin: 0 auto;
+      }
+      .grid-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(32px, 1fr));
+        justify-items: center;
+        gap: 2px;
+      }
+      .a-row {
+        max-width: 500px;
+        margin: 0 auto;
+        width: 90%;
+      }
+      .z-row {
+        max-width: 380px;
+        margin: 0 auto;
+        width: 90%;
       }
     `
   ];
@@ -62,10 +79,10 @@ export class KeyboardLayout extends SignalWatcher(LitElement) {
     }
 
     const allGuessedLetters = Object.values(guessedLetters) as string[][];
-    console.log(allGuessedLetters);
 
     return html`
-      <div class='flex'>
+    <div class='grid'>
+      <div class='grid-row'>
         <wordle-square small letter='q'
           ?isCorrect=${checkIsCorrect('q', allGuessedLetters, gameWord)}
           ?notInPuzzle=${checkNotInPuzzle('q', allGuessedLetters, gameWord)}
@@ -117,8 +134,8 @@ export class KeyboardLayout extends SignalWatcher(LitElement) {
           ?inPuzzle=${checkInPuzzle('p', allGuessedLetters, gameWord)}
         ></wordle-square>
       </div>
-      <div class='flex'>
-        <wordle-square small letter='a'
+      <div class='grid-row a-row'>
+      <wordle-square small letter='a'
           ?isCorrect=${checkIsCorrect('a', allGuessedLetters, gameWord)}
           ?notInPuzzle=${checkNotInPuzzle('a', allGuessedLetters, gameWord)}
           ?inPuzzle=${checkInPuzzle('a', allGuessedLetters, gameWord)}
@@ -164,7 +181,7 @@ export class KeyboardLayout extends SignalWatcher(LitElement) {
           ?inPuzzle=${checkInPuzzle('l', allGuessedLetters, gameWord)}
         ></wordle-square>
       </div>
-      <div class='flex'>
+      <div class='grid-row z-row'>
         <wordle-square small letter='z'
           ?isCorrect=${checkIsCorrect('z', allGuessedLetters, gameWord)}
           ?notInPuzzle=${checkNotInPuzzle('z', allGuessedLetters, gameWord)}
@@ -201,6 +218,7 @@ export class KeyboardLayout extends SignalWatcher(LitElement) {
           ?inPuzzle=${checkInPuzzle('m', allGuessedLetters, gameWord)}
         ></wordle-square>
       </div>
+    </div>
     `;
   }
 }

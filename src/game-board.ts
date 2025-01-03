@@ -6,6 +6,24 @@ import { classMap } from 'lit/directives/class-map.js';
 import './square';
 import './keyboard-layout';
 
+export const LIT_WORDLE_SCORE = 'lit-wordle-score';
+
+export const setLocalStorageItem = (key = LIT_WORDLE_SCORE, value) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error("Error setting local storage item:", error);
+  }
+}
+
+export const getLocalStorageItem = (key = LIT_WORDLE_SCORE) => {
+  try {
+    return JSON.parse(localStorage.getItem(key) ?? '') ?? [];
+  } catch (error) {
+    console.error("Error setting local storage item:", error);
+  }
+}
+
 const defaultGuesses = {
   0: [],
   1: [],
@@ -15,6 +33,12 @@ const defaultGuesses = {
   5: [],
 } as Record<number, string[]>;
 
+type gameScore = {
+  won: boolean;
+  timestamp: number;
+  guessCount: number;
+}
+
 // Global store
 export const gameState = signal({
   value: 0,
@@ -23,11 +47,7 @@ export const gameState = signal({
   gameWon: false,
   gameOver: false,
   notWord: null as null | number,
-  scores: [] as {
-    won: boolean;
-    timestamp: number;
-    guessCount: number;
-  }[],
+  scores: [] as gameScore[],
 });
 
 import { words } from './assets/words';
@@ -36,12 +56,39 @@ const isAlphabetic = (key: string) => {
   return /^[a-zA-Z]$/.test(key);
 }
 
+const compareScores = (
+  gameScore: gameScore[],
+  localStorageScore: gameScore[]
+) => {
+  return (
+      gameScore.length === localStorageScore.length &&
+      gameScore.every((score) =>
+          localStorageScore.some((score2) =>
+              Object.keys(score).every((key) => score[key] === score2[key])
+          )
+      )
+  );
+};
+
 @customElement('game-board')
 export class GameBoard extends SignalWatcher(LitElement) {
 
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('keydown', this._handleKeydown);
+  }
+
+  update(changes) {
+    // If actual and local storage scores are different then we need to update them both
+    if (!compareScores(gameState.get().scores, getLocalStorageItem())) {
+      const currentLocalStorageScore = getLocalStorageItem();
+      setLocalStorageItem(LIT_WORDLE_SCORE, [...currentLocalStorageScore, gameState.get().scores].flat());
+      gameState.set({
+        ...gameState.get(),
+        scores: [...currentLocalStorageScore, gameState.get().scores].flat(),
+      })
+    }
+    super.update(changes);
   }
 
   _handleKeydown (event: KeyboardEvent) {
@@ -113,7 +160,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
               guessCount: gameState.get().value + 1
             }
           ]
-        })
+        });
         return;
       }
       gameState.set({
@@ -170,7 +217,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
       ${data.map((d, index) => {
         const blankSquareCount = 5 - (d.length ?? 0);
         const blankSquareArr = Array.from(Array(blankSquareCount).keys());
-        return html`<div>
+        return html`
           <div class=${classMap({
             "wordle-row": true,
             'not-a-word': gameState.get().notWord === index
@@ -183,8 +230,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
               ?isCorrect=${(gameState.get().value > index || gameState.get().gameOver) && gameWord.charAt(letterIndex) === letter}
             ></wordle-square>`)}
             ${blankSquareArr.map(() => html`<wordle-square letter=''></wordle-square>`)}
-          </div>
-        </div>`
+          </div>`
       })}
       <keyboard-layout></keyboard-layout>
     `
@@ -192,10 +238,12 @@ export class GameBoard extends SignalWatcher(LitElement) {
 
   static styles = css`
     :host {
-      max-width: 1280px;
+      max-width: 100%;
       margin: 0 auto;
       padding: 2rem;
       text-align: center;
+      width: 100%;
+      min-width: 320px;
     }
 
     .logo {
@@ -265,6 +313,8 @@ export class GameBoard extends SignalWatcher(LitElement) {
     .wordle-row {
       display: flex;
       justify-content: center;
+      max-width: 355px;
+      margin: 0 auto;
     }
 
     .lose-message {

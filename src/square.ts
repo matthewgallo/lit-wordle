@@ -38,8 +38,21 @@ export class WordleSquare extends LitElement {
   static styles = [
     css`
       :host {
-        display: block;
+        display: flex;
+        text-transform: uppercase;
+        font-weight: 600;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        align-items: center;
+        justify-content: center;
       }
+      :host([small]) {
+        max-width: 48px;
+        max-height: 48px;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
       .square {
         border: 2px solid var(--cds-border-subtle-01);
         height: 4rem;
@@ -61,8 +74,9 @@ export class WordleSquare extends LitElement {
         background-color: green;
       }
       .small {
-        height: 3rem;
-        width: 3rem;
+        width: 100%;
+        height: 100%;
+        margin: 0;
       }
     `
   ];
