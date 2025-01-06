@@ -3,10 +3,10 @@ import { customElement, state } from 'lit/decorators.js'
 import { SignalWatcher } from '@lit-labs/signals';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
+import { type gameScore, gameState, getLocalStorageItem, LIT_WORDLE_SCORE, setLocalStorageItem } from './game-board';
 import '@carbon/web-components/es/components/icon-button/index.js';
 import '@carbon/web-components/es/components/modal/index.js';
 import '@carbon/web-components/es/components/button/index.js';
-import { type gameScore, getLocalStorageItem, LIT_WORDLE_SCORE, setLocalStorageItem } from './game-board';
 
 @customElement('score-card')
 export class ScoreCard extends SignalWatcher(LitElement) {
@@ -196,7 +196,15 @@ export class ScoreCard extends SignalWatcher(LitElement) {
             })}
           >${scores.length ? scores.filter((s: gameScore) => s.guessCount === 6).length : 0}</span>
         </div>
-        <cds-button kind='ghost' @click=${() => setLocalStorageItem(LIT_WORDLE_SCORE, [])}>Reset scores</cds-button>
+        <cds-button kind='ghost' @click=${() => {
+          setLocalStorageItem(LIT_WORDLE_SCORE, [])
+          gameState.set({
+          ...gameState.get(),
+          scores: [],
+          });
+          this.requestUpdate(); 
+        }}
+        >Reset scores</cds-button>
       </cds-modal-body>
       <cds-modal-footer>
         <cds-modal-footer-button kind="secondary" data-modal-close

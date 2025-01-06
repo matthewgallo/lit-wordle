@@ -74,6 +74,19 @@ const compareScores = (
 @customElement('game-board')
 export class GameBoard extends SignalWatcher(LitElement) {
 
+  constructor() {
+    super();
+    const newGameWord = words[Math.floor(Math.random() * words.length)];
+    gameState.set({
+      ...gameState.get(),
+      gameWord: newGameWord.toLowerCase(),
+      guesses: defaultGuesses,
+      value: 0,
+      gameWon: false,
+      gameOver: false,
+    });
+  }
+
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('keydown', this._handleKeydown);
