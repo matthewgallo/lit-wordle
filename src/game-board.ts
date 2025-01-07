@@ -63,7 +63,7 @@ const isAlphabetic = (key: string) => {
 
 const compareScores = (
   gameScore: gameScore[],
-  localStorageScore: gameScore[]
+  localStorageScore: gameScore[] = []
 ) => {
   return (
       gameScore.length === localStorageScore.length &&
