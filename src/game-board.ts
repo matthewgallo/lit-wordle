@@ -1,7 +1,6 @@
 import { LitElement, PropertyValues, css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import {SignalWatcher, signal} from '@lit-labs/signals';
-import wordExists from 'word-exists';
 import { classMap } from 'lit/directives/class-map.js';
 import './square';
 import './keyboard-layout';
