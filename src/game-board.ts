@@ -56,10 +56,7 @@ export const gameState = signal({
 });
 
 import { words } from './assets/words';
-
-const isAlphabetic = (key: string) => {
-  return /^[a-zA-Z]$/.test(key);
-}
+import { gameKeydown } from './utilities/game-keydown';
 
 const compareScores = (
   gameScore: gameScore[],
@@ -110,90 +107,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
   }
 
   _handleKeydown(event: KeyboardEvent) {
-    if (!gameState.get().gameWord.length) {
-      return;
-    }
-    const guessNumber = gameState.get().value;
-    const gameWord = gameState.get().gameWord;
-    const prevCurrentGuess = gameState.get().guesses[guessNumber];
-    if (prevCurrentGuess.length > 0 && event.key === 'Backspace') {
-      prevCurrentGuess.pop();
-      const newGuesses = {...gameState.get().guesses};
-      newGuesses[guessNumber] = [...prevCurrentGuess];
-      gameState.set({
-        ...gameState.get(),
-        guesses: newGuesses,
-      });
-    }
-    if (prevCurrentGuess.length === 5 && event.key === 'Enter') {
-      // Entered word, is not a valid word
-      if (!wordExists(prevCurrentGuess.join(''))) {
-        gameState.set({
-          ...gameState.get(),
-          notWord: gameState.get().value,
-        });
-        // Refactor later, just removes class after css animation
-        // Maybe use ontransitionend, rather than a setTimeout
-        setTimeout(() => {
-          const rootElement = document.querySelector('game-board');
-          if (rootElement?.shadowRoot) {
-            const wrongWordRow = rootElement.shadowRoot.querySelector('.not-a-word');
-            wrongWordRow?.classList.remove('not-a-word');
-            gameState.set({
-              ...gameState.get(),
-              notWord: null,
-            });
-          }
-        }, 510);
-        return;
-      }
-
-      // Player has won if guess equals the chosen game word
-      if (prevCurrentGuess.join('') === gameWord) {
-        gameState.set({
-          ...gameState.get(),
-          gameWon: true,
-          gameOver: true,
-          scores: [
-            ...gameState.get().scores,
-            {
-              won: true,
-              timestamp: Date.now(),
-              guessCount: gameState.get().value + 1
-            }
-          ]
-        });
-        return;
-      }
-      if (guessNumber === 5) {
-        // Game over, last guess
-        return gameState.set({
-          ...gameState.get(),
-          gameOver: true,
-          gameWon: false,
-          scores: [
-            ...gameState.get().scores,
-            {
-              won: false,
-              timestamp: Date.now(),
-              guessCount: gameState.get().value + 1
-            }
-          ]
-        });
-      }
-      gameState.set({
-        ...gameState.get(),
-        value: gameState.get().value + 1,
-      });
-    }
-    if (!isAlphabetic(event.key) || prevCurrentGuess.length === 5) return;
-    
-    const newGuesses = {...gameState.get().guesses};
-    newGuesses[guessNumber] = [...prevCurrentGuess, event.key]
-    gameState.set({
-      ...gameState.get(),
-      guesses: newGuesses
-    });
+    gameKeydown(event);
   }
 
   // Resets for new game
