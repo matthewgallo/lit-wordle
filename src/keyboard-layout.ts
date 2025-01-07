@@ -53,10 +53,13 @@ export class KeyboardLayout extends SignalWatcher(LitElement) {
         align-items: flex-start;
         justify-items: center;
         justify-content: center;
-        width: 484px;
         max-width: 100%;
         margin: 0 auto;
         gap: 4px;
+        width: 100%;
+        @media (min-width: 500px) {
+          width: 484px;
+        }
       }
     `
   ];
