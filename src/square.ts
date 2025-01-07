@@ -52,11 +52,13 @@ export class WordleSquare extends LitElement {
         max-height: 58px;
         margin-bottom: 0.5rem;
         height: 58px;
+        color: #fff;
         @media (min-width: 500px) {
           max-width: 42px;
         }
       }
       :host([size='medium']) {
+        color: #fff;
         max-width: 64px;
         max-height: 58px;
         height: 58px;
