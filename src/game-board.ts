@@ -18,7 +18,11 @@ export const setLocalStorageItem = (key = LIT_WORDLE_SCORE, value: gameScore[]) 
 
 export const getLocalStorageItem = (key = LIT_WORDLE_SCORE) => {
   try {
-    return JSON.parse(localStorage.getItem(key) ?? '') ?? [];
+    if (localStorage.getItem(key)) {
+      return JSON.parse(localStorage.getItem(key) ?? '') ?? [];
+    } else {
+      localStorage.setItem(key, JSON.stringify([]));
+    }
   } catch (error) {
     console.error("Error setting local storage item:", error);
   }
