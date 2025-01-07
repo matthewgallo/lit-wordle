@@ -2,6 +2,8 @@ import { LitElement, PropertyValues, css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import {SignalWatcher, signal} from '@lit-labs/signals';
 import { classMap } from 'lit/directives/class-map.js';
+import { words } from './assets/words';
+import { gameKeydown } from './utilities/game-keydown';
 import './square';
 import './keyboard-layout';
 
@@ -45,7 +47,7 @@ export type gameScore = {
 
 // Global store
 export const gameState = signal({
-  value: 0,
+  currentGuess: 0,
   guesses: defaultGuesses,
   gameWord: '',
   gameWon: false,
@@ -53,9 +55,6 @@ export const gameState = signal({
   notWord: null as null | number,
   scores: [] as gameScore[],
 });
-
-import { words } from './assets/words';
-import { gameKeydown } from './utilities/game-keydown';
 
 const compareScores = (
   gameScore: gameScore[],
@@ -81,7 +80,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
       ...gameState.get(),
       gameWord: newGameWord.toLowerCase(),
       guesses: defaultGuesses,
-      value: 0,
+      currentGuess: 0,
       gameWon: false,
       gameOver: false,
     });
@@ -116,7 +115,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
       ...gameState.get(),
       gameWord: newGameWord.toLowerCase(),
       guesses: defaultGuesses,
-      value: 0,
+      currentGuess: 0,
       gameWon: false,
       gameOver: false,
     });
@@ -161,9 +160,9 @@ export class GameBoard extends SignalWatcher(LitElement) {
             ${d.map((letter, letterIndex) => html`
             <wordle-square
               .letter=${letter}
-              ?notInPuzzle=${(gameState.get().value > index || gameState.get().gameOver) && !gameWord.includes(letter)}
-              ?inPuzzle=${(gameState.get().value > index || gameState.get().gameOver) && gameWord.includes(letter)}
-              ?isCorrect=${(gameState.get().value > index || gameState.get().gameOver) && gameWord.charAt(letterIndex) === letter}
+              ?notInPuzzle=${(gameState.get().currentGuess > index || gameState.get().gameOver) && !gameWord.includes(letter)}
+              ?inPuzzle=${(gameState.get().currentGuess > index || gameState.get().gameOver) && gameWord.includes(letter)}
+              ?isCorrect=${(gameState.get().currentGuess > index || gameState.get().gameOver) && gameWord.charAt(letterIndex) === letter}
             ></wordle-square>`)}
             ${blankSquareArr.map(() => html`<wordle-square letter=''></wordle-square>`)}
           </div>`

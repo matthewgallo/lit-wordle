@@ -10,7 +10,7 @@ export const gameKeydown = (event?: KeyboardEvent, key?: string) => {
     return;
   }
   const pressedKey = key ?? event?.key ?? '';
-  const guessNumber = gameState.get().value;
+  const guessNumber = gameState.get().currentGuess;
   const gameWord = gameState.get().gameWord;
   const prevCurrentGuess = gameState.get().guesses[guessNumber];
   if (prevCurrentGuess.length > 0 && pressedKey === 'Backspace') {
@@ -28,7 +28,7 @@ export const gameKeydown = (event?: KeyboardEvent, key?: string) => {
     if (!wordExists(prevCurrentGuess.join(''))) {
       gameState.set({
         ...gameState.get(),
-        notWord: gameState.get().value,
+        notWord: gameState.get().currentGuess,
       });
       // Refactor later, just removes class after css animation
       // Maybe use ontransitionend, rather than a setTimeout
@@ -57,7 +57,7 @@ export const gameKeydown = (event?: KeyboardEvent, key?: string) => {
           {
             won: true,
             timestamp: Date.now(),
-            guessCount: gameState.get().value + 1
+            guessCount: gameState.get().currentGuess + 1
           }
         ]
       });
@@ -74,14 +74,14 @@ export const gameKeydown = (event?: KeyboardEvent, key?: string) => {
           {
             won: false,
             timestamp: Date.now(),
-            guessCount: gameState.get().value + 1
+            guessCount: gameState.get().currentGuess + 1
           }
         ]
       });
     }
     gameState.set({
       ...gameState.get(),
-      value: gameState.get().value + 1,
+      currentGuess: gameState.get().currentGuess + 1,
     });
   }
   if (!isAlphabetic(pressedKey) || prevCurrentGuess.length === 5) return;

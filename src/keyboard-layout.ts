@@ -66,7 +66,7 @@ export class KeyboardLayout extends SignalWatcher(LitElement) {
 
   render() {
     const guesses = gameState.get().guesses;
-    const currentGuess = gameState.get().value;
+    const currentGuess = gameState.get().currentGuess;
     const gameWord = gameState.get().gameWord;
     const guessedLetters = {} as Record<number, string[]>;
     for (const key in guesses) {
