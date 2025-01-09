@@ -7,7 +7,6 @@ import { gameKeydown } from './utilities/game-keydown';
 import './square';
 import './keyboard-layout';
 import { defaultGuesses, gameScore, gameState } from './game-state';
-import '@carbon/web-components/es/components/notification/index.js';
 
 export const LIT_WORDLE_SCORE = 'lit-wordle-score';
 
