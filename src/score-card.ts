@@ -3,7 +3,8 @@ import { customElement, state } from 'lit/decorators.js'
 import { SignalWatcher } from '@lit-labs/signals';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
-import { type gameScore, gameState, getLocalStorageItem, LIT_WORDLE_SCORE, setLocalStorageItem } from './game-board';
+import { getLocalStorageItem, LIT_WORDLE_SCORE, setLocalStorageItem } from './game-board';
+import { type gameScore, gameState } from './game-state';
 import '@carbon/web-components/es/components/icon-button/index.js';
 import '@carbon/web-components/es/components/modal/index.js';
 import '@carbon/web-components/es/components/button/index.js';

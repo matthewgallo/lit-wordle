@@ -1,5 +1,5 @@
 import wordExists from 'word-exists';
-import { gameState } from '../game-board';
+import { gameState } from '../game-state';
 
 const isAlphabetic = (key: string) => {
   return /^[a-zA-Z]$/.test(key);

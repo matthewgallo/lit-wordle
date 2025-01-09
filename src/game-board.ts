@@ -1,11 +1,13 @@
-import { LitElement, PropertyValues, css, html } from 'lit'
-import { customElement } from 'lit/decorators.js'
-import {SignalWatcher, signal} from '@lit-labs/signals';
+import { LitElement, PropertyValues, css, html } from 'lit';
+import { customElement } from 'lit/decorators.js';
+import { SignalWatcher } from '@lit-labs/signals';
 import { classMap } from 'lit/directives/class-map.js';
 import { words } from './assets/words';
 import { gameKeydown } from './utilities/game-keydown';
 import './square';
 import './keyboard-layout';
+import { defaultGuesses, gameScore, gameState } from './game-state';
+import '@carbon/web-components/es/components/notification/index.js';
 
 export const LIT_WORDLE_SCORE = 'lit-wordle-score';
 
@@ -28,33 +30,6 @@ export const getLocalStorageItem = (key = LIT_WORDLE_SCORE) => {
     console.error("Error setting local storage item:", error);
   }
 }
-
-const defaultGuesses = {
-  0: [],
-  1: [],
-  2: [],
-  3: [],
-  4: [],
-  5: [],
-} as Record<number, string[]>;
-
-export type gameScore = {
-  [key: string]: boolean | number;
-  won: boolean;
-  timestamp: number;
-  guessCount: number;
-}
-
-// Global store
-export const gameState = signal({
-  currentGuess: 0,
-  guesses: defaultGuesses,
-  gameWord: '',
-  gameWon: false,
-  gameOver: false,
-  notWord: null as null | number,
-  scores: [] as gameScore[],
-});
 
 const compareScores = (
   gameScore: gameScore[],
@@ -95,10 +70,15 @@ export class GameBoard extends SignalWatcher(LitElement) {
     // If actual and local storage scores are different then we need to update them both
     if (!compareScores(gameState.get().scores, getLocalStorageItem())) {
       const currentLocalStorageScore = getLocalStorageItem();
-      setLocalStorageItem(LIT_WORDLE_SCORE, [...currentLocalStorageScore, gameState.get().scores].flat());
+      const newScores = [...currentLocalStorageScore, gameState.get().scores].flat()
+      const cleanedScores = newScores.filter(
+        (s, index) => index === newScores.findIndex(
+          o => s.timestamp === o.timestamp
+        ));
+      setLocalStorageItem(LIT_WORDLE_SCORE, cleanedScores);
       gameState.set({
         ...gameState.get(),
-        scores: [...currentLocalStorageScore, gameState.get().scores].flat(),
+        scores: newScores,
       })
     }
     super.update(changes);
@@ -127,27 +107,25 @@ export class GameBoard extends SignalWatcher(LitElement) {
   render() {
     const data = Object.values(gameState.get().guesses)
     const gameWord = gameState.get().gameWord;
-
     return html`
       <slot></slot>
-      <h1 class='game-message-header'>
-        ${gameState.get().gameWon && gameState.get().gameOver ? 'You won!' : null}
+      <div class='game-message-header'>
+        <div
+          class=${classMap({'game-notification': true, showMessage: gameState.get().gameOver, hideMessage: !gameState.get().gameOver && gameState.get().scores.length})}
+          >
+          ${gameState.get().gameWon && gameState.get().gameOver ? html`You won!` : null}
+          ${!gameState.get().gameWon && gameState.get().gameOver ? html`Better luck next time!` : null}
+          <cds-button
+            @click=${(e: Event) => this._onNewGame(e)}
+            class='play-again'
+            size='sm'
+            kind='ghost'
+          >
+            Play again
+          </cds-button>
+        </div>
         ${!gameState.get().gameWon && gameState.get().gameOver ? html`
-          <span class='lose-message'>Better luck next time!</span>
           <span class='game-word'>${gameState.get().gameWord}</span>` : null}
-      </h1>
-      <div class="game-button-wrapper">
-        <button @click=${(e: Event) => this._onNewGame(e)} part="button">
-          ${!gameState.get().gameWord.length
-              ? 'Start a new game'
-              : gameState.get().gameOver ? 'Play again' : 'Restart'
-          }
-        </button>
-        <span class=${classMap({
-          'game-session-dot': true,
-          'game-in-session': !gameState.get().gameOver && gameState.get().gameWord.length,
-          'game-not-in-session': gameState.get().gameOver || !gameState.get().gameWord.length,
-          })}></span>
       </div>
       ${data.map((d, index) => {
         const blankSquareCount = 5 - (d.length ?? 0);
@@ -161,7 +139,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
             <wordle-square
               .letter=${letter}
               ?notInPuzzle=${(gameState.get().currentGuess > index || gameState.get().gameOver) && !gameWord.includes(letter)}
-              ?inPuzzle=${(gameState.get().currentGuess > index || gameState.get().gameOver) && gameWord.includes(letter)}
+              ?inPuzzle=${(gameState.get().currentGuess > index || gameState.get().gameOver) && gameWord.includes(letter) && d.indexOf(letter) !== Array.from(gameWord).indexOf(letter) && Array.from(gameWord).indexOf(letter) > -1}
               ?isCorrect=${(gameState.get().currentGuess > index || gameState.get().gameOver) && gameWord.charAt(letterIndex) === letter}
             ></wordle-square>`)}
             ${blankSquareArr.map(() => html`<wordle-square letter=''></wordle-square>`)}
@@ -179,6 +157,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
       text-align: center;
       width: 100%;
       min-width: 320px;
+      margin-top: 2rem;
     }
 
     .logo {
@@ -201,34 +180,11 @@ export class GameBoard extends SignalWatcher(LitElement) {
       justify-content: center;
     }
 
-    button {
-      border-radius: 8px;
-      border: 1px solid transparent;
-      padding: 0.6em 1.2em;
-      font-size: 1em;
-      font-weight: 500;
-      font-family: inherit;
-      background-color: #1a1a1a;
-      cursor: pointer;
-      transition: all 250ms;
+    .play-again {
+      position: absolute;
+      right: 1rem;
+      top: 0.5rem;
     }
-    button:hover {
-      border-color: #646cff;
-    }
-    button:focus,
-    button:focus-visible {
-      outline: 4px auto -webkit-focus-ring-color;
-    }
-
-    @media (prefers-color-scheme: light) {
-      a:hover {
-        color: #747bff;
-      }
-      button {
-        background-color: #f9f9f9;
-      }
-    }
-
 
     .wordle-row {
       display: flex;
@@ -278,56 +234,36 @@ export class GameBoard extends SignalWatcher(LitElement) {
     .game-message-header {
       margin: 0;
     }
-    .game-session-dot {
-      display: block;
-      height: 0.5rem;
-      width: 0.5rem;
-      border-radius: 100%;
-      margin-left: 1rem;
-    }
+    .game-notification {
+      height: 3rem;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 1rem;
+      opacity: 0;
+      border-left: 2px solid green;
+      width: 320px;
+      background-color: var(--cds-background-hover);
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
 
-    .game-in-session {
-      animation: game-in-progress-pulse 1s alternate infinite;
-      @media (prefers-reduced-motion) {
-        animation: none;
-      }
-      background: rgba(255,255,255,0.7);
-      box-shadow: inset 0px 0px 10px 2px rgba(0,128,0,0.5),
-                      0px 0px 10px 2px rgba(0,128,0,0.3);
+      margin-left: auto;
+      margin-right: auto;
+      transition-property: display, opacity, transform;
+      transition-duration: 350ms;
+      transition-behavior: allow-discrete;
+      transform: translateY(2rem);
     }
-    .game-not-in-session {
-      animation: pulse 1s alternate infinite;
-      @media (prefers-reduced-motion) {
-        animation: none;
-      }
-      background: rgba(255,255,255,0.7);
-      box-shadow: inset 0px 0px 10px 2px rgba(255,0,0,0.5),
-                      0px 0px 10px 2px rgba(255,0,0,0.3);
+    .game-notification.hideMessage {
+      opacity: 0;
     }
-
-    @keyframes pulse {
-      0% {
-        background: rgba(255,255,255,0.3);
-        box-shadow: inset 0px 0px 10px 2px rgba(255,0,0,0.5),
-                          0px 0px 5px 2px rgba(255,0,0,0.3);
+    .game-notification.showMessage {
+      @starting-style {
+        opacity: 0;
       }
-      100% {
-        background: rgba(255,255,255,1);
-        box-shadow: inset 0px 0px 10px 2px rgba(255,0,0,0.5),
-                          0px 0px 15px 2px rgba(255,0,0,1);
-      }
-    }
-    @keyframes game-in-progress-pulse {
-      0% {
-        background: rgba(255,255,255,0.3);
-        box-shadow: inset 0px 0px 10px 2px rgba(0,128,0,0.5),
-                          0px 0px 5px 2px rgba(0,128,0,0.3);
-      }
-      100% {
-        background: rgba(255,255,255,1);
-        box-shadow: inset 0px 0px 10px 2px rgba(0,128,0,0.5),
-                          0px 0px 15px 2px rgba(0,128,0,1);
-      }
+      opacity: 1;
+      transform: translateY(0);
     }
   `
 }
