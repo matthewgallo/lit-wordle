@@ -107,43 +107,47 @@ export class GameBoard extends SignalWatcher(LitElement) {
     const data = Object.values(gameState.get().guesses)
     const gameWord = gameState.get().gameWord;
     return html`
-      <slot></slot>
-      <div class='game-message-header'>
-        <div
-          class=${classMap({'game-notification': true, showMessage: gameState.get().gameOver, hideMessage: !gameState.get().gameOver && gameState.get().scores.length})}
-          >
-          ${gameState.get().gameWon && gameState.get().gameOver ? html`You won!` : null}
-          ${!gameState.get().gameWon && gameState.get().gameOver ? html`Better luck next time!` : null}
-          <cds-button
-            @click=${(e: Event) => this._onNewGame(e)}
-            class='play-again'
-            size='sm'
-            kind='ghost'
-          >
-            Play again
-          </cds-button>
-        </div>
-        ${!gameState.get().gameWon && gameState.get().gameOver ? html`
-          <span class='game-word'>${gameState.get().gameWord}</span>` : null}
+      ${gameState.get().gameOver ? html`<div class='overlay'></div>`: null}
+      ${!gameState.get().gameWon && gameState.get().gameOver
+          ? html`<div class='game-notification game-notification-word'>
+            ${Array.from(gameWord).map(l =>
+              html`<wordle-square compact .letter=${l} ?isCorrect=${true} size='small'></wordle-square>`)}</div>`
+          : null
+        }
+      <div
+        class=${classMap({'game-notification': true, showMessage: gameState.get().gameOver, hideMessage: !gameState.get().gameOver})}
+        >
+        ${gameState.get().gameWon && gameState.get().gameOver ? html`You won!` : null}
+        ${!gameState.get().gameWon && gameState.get().gameOver ? html`Better luck next time!` : null}
+        <cds-button
+          @click=${(e: Event) => this._onNewGame(e)}
+          class='play-again'
+          size='sm'
+          kind='ghost'
+        >
+          Play again
+        </cds-button>
       </div>
-      ${data.map((d, index) => {
-        const blankSquareCount = 5 - (d.length ?? 0);
-        const blankSquareArr = Array.from(Array(blankSquareCount).keys());
-        return html`
-          <div class=${classMap({
-            "wordle-row": true,
-            'not-a-word': gameState.get().notWord === index
-          })}>
-            ${d.map((letter, letterIndex) => html`
-            <wordle-square
-              .letter=${letter}
-              ?notInPuzzle=${(gameState.get().currentGuess > index || gameState.get().gameOver) && !gameWord.includes(letter)}
-              ?inPuzzle=${(gameState.get().currentGuess > index || gameState.get().gameOver) && gameWord.includes(letter) && d.indexOf(letter) !== Array.from(gameWord).indexOf(letter) && Array.from(gameWord).indexOf(letter) > -1}
-              ?isCorrect=${(gameState.get().currentGuess > index || gameState.get().gameOver) && gameWord.charAt(letterIndex) === letter}
-            ></wordle-square>`)}
-            ${blankSquareArr.map(() => html`<wordle-square letter=''></wordle-square>`)}
-          </div>`
-      })}
+      <div class='game-row-wrapper'>
+        ${data.map((d, index) => {
+          const blankSquareCount = 5 - (d.length ?? 0);
+          const blankSquareArr = Array.from(Array(blankSquareCount).keys());
+          return html`
+            <div class=${classMap({
+              "wordle-row": true,
+              'not-a-word': gameState.get().notWord === index
+            })}>
+              ${d.map((letter, letterIndex) => html`
+              <wordle-square
+                .letter=${letter}
+                ?notInPuzzle=${(gameState.get().currentGuess > index || gameState.get().gameOver) && !gameWord.includes(letter)}
+                ?inPuzzle=${(gameState.get().currentGuess > index || gameState.get().gameOver) && gameWord.includes(letter) && d.indexOf(letter) !== Array.from(gameWord).indexOf(letter) && Array.from(gameWord).indexOf(letter) > -1}
+                ?isCorrect=${(gameState.get().currentGuess > index || gameState.get().gameOver) && gameWord.charAt(letterIndex) === letter}
+              ></wordle-square>`)}
+              ${blankSquareArr.map(() => html`<wordle-square letter=''></wordle-square>`)}
+            </div>`
+        })}
+      </div>
       <keyboard-layout></keyboard-layout>
     `
   }
@@ -152,7 +156,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
     :host {
       max-width: 100%;
       margin: 0 auto;
-      padding: 0.5rem;
+      padding-top: 2rem;
       text-align: center;
       width: 100%;
       min-width: 320px;
@@ -190,6 +194,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
       justify-content: center;
       max-width: 355px;
       margin: 0 auto;
+      gap: 8px;
     }
 
     .lose-message {
@@ -230,9 +235,6 @@ export class GameBoard extends SignalWatcher(LitElement) {
         transform: translateX(0);
       }
     }
-    .game-message-header {
-      margin: 0;
-    }
     .game-notification {
       height: 3rem;
       position: absolute;
@@ -242,7 +244,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
       opacity: 0;
       border-left: 2px solid green;
       width: 320px;
-      background-color: var(--cds-background-hover);
+      background-color: var(--cds-field-01);
       display: flex;
       align-items: center;
       padding: 0 1rem;
@@ -253,6 +255,7 @@ export class GameBoard extends SignalWatcher(LitElement) {
       transition-duration: 350ms;
       transition-behavior: allow-discrete;
       transform: translateY(2rem);
+      box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
     }
     .game-notification.hideMessage {
       opacity: 0;
@@ -263,6 +266,17 @@ export class GameBoard extends SignalWatcher(LitElement) {
       }
       opacity: 1;
       transform: translateY(0);
+    }
+    .game-notification.game-notification-word {
+      border-left: none;
+      top: 4rem;
+      display: flex;
+      justify-content: center;
+      opacity: 1;
+      background-color: var(--cds-field-01);
+      gap: 4px;
+      height: 5rem;
+      width: fit-content;
     }
   `
 }

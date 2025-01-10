@@ -34,7 +34,13 @@ export class WordleSquare extends LitElement {
    * Letter size
    */
   @property({ type: String })
-  size = ''
+  size = 'large'
+
+  /**
+   * Controls spacing
+   */
+  @property({ type: Boolean })
+  compact = false
 
   static styles = [
     css`
@@ -50,7 +56,7 @@ export class WordleSquare extends LitElement {
       }
       :host([size='small']) {
         max-width: 36px;
-        width: 8vw;
+        width: 8.5vw;
         max-height: 58px;
         margin-bottom: 0.5rem;
         height: 58px;
@@ -63,6 +69,9 @@ export class WordleSquare extends LitElement {
         max-height: 58px;
         height: 58px;
       }
+      :host([compact]) {
+        margin: 0;
+      }
 
       .square {
         border: 2px solid var(--cds-border-subtle-01);
@@ -71,17 +80,19 @@ export class WordleSquare extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-right: 0.5rem;
         margin-bottom: 0.5rem;
         transition: background-color 400ms;
       }
-      .notInPuzzle {
+      .small.notInPuzzle,
+      .large.notInPuzzle {
         background-color: gray;
       }
-      .isInPuzzle {
+      .small.isInPuzzle,
+      .large.isInPuzzle {
         background-color: goldenrod;
       }
-      .isCorrect {
+      .small.isCorrect,
+      .large.isCorrect {
         background-color: green;
       }
       .small, .medium {
@@ -89,9 +100,12 @@ export class WordleSquare extends LitElement {
         height: 100%;
         margin: 0;
         text-transform: uppercase;
-        background-color: transparent;
         font-family: inherit;
         cursor: pointer;
+        background-color: var(--cds-field-01);
+        color: var(--cds-text);
+        /* Will remove ios zoom, if button is touched multiple times / 'double tapped' */
+        touch-action: manipulation;
       }
       .medium {
         height: 58px;
@@ -106,7 +120,9 @@ export class WordleSquare extends LitElement {
       notInPuzzle: this.notInPuzzle,
       square: true,
       small: this.size === 'small',
-      medium: this.size === 'medium'
+      medium: this.size === 'medium',
+      large: this.size === 'large',
+      compact: this.compact,
     };
 
     return this.size === 'small' || this.size === 'medium' ? html`<button
